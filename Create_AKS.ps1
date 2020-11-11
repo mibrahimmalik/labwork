@@ -1,4 +1,5 @@
-﻿$RGName = "aks-rg"
+﻿# Create AKS using CLI
+$RGName = "aks-rg"
 $Location = "uksouth"
 $ACRName = "kubejenacr"
 $AKSName = "kubejenaks"
