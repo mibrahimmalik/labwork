@@ -1,9 +1,9 @@
-﻿$RGName = "aks-rg"
+﻿# Create AKS using CLI
+$RGName = "aks-rg"
 $Location = "uksouth"
-$aksprefix = "mibaks"
-$ACRName = "$($aksprefix)acr"
-$AKSName = $aksprefix
-$SPName = "kubejen-sp"
+$ACRName = "kube-acr"
+$AKSName = "jenkinsaks"
+$SPName = "jenkinsaks-sp"
 $AKSVNetName = "aks-vnet"
 $AKSSubnetName = "aks-subnet"
 
@@ -38,19 +38,18 @@ $ACR_REGISTRY_ID=az acr show --name $ACRName --query id --output tsv
 
 
 
-#$SP_PASSWD = az ad sp create-for-rbac `
-#    --name $SPName `
-#    --role Contributor `
-#    --scopes $ACR_REGISTRY_ID `
-#    --query password `
-#    --output tsv
+$SP_PASSWD = az ad sp create-for-rbac `
+    --name $SPName `
+    --role Contributor `
+    --scopes $ACR_REGISTRY_ID `
+    --query password `
+    --output tsv
 
 $SP_ID= az ad sp show `
     --id http://$SPName `
     --query appId `
     --output tsv`
 
-az role assignment create --assignee $SP_ID --scope $ACR_REGISTRY_ID --role Contributor
 
 az aks create --name $AKSName `
     --resource-group $RGName `
