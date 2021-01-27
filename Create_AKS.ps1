@@ -1,77 +1,60 @@
 ﻿# Create AKS using CLI
-$RGName = "aks-rg"
+$Prefix = "aptaks"
+$RGName = "$($Prefix)-rg"
 $Location = "uksouth"
-$ACRName = "kube-acr"
-$AKSName = "jenkinsaks"
-$SPName = "jenkinsaks-sp"
-$AKSVNetName = "aks-vnet"
-$AKSSubnetName = "aks-subnet"
-
-$RG = New-AzResourceGroup -name $RGName -Location $Location -Force
-
-$ACR = New-AzContainerRegistry -Name $ACRName -ResourceGroupName $RGName -Sku Basic -Location $Location
-
-#$AKS = New-AzAksCluster -ResourceGroupName $RGName -Name $AKSName -Location $Location -NodeCount 1 -SshKeyValue id_rsa.pub
+$ACRName = "$($Prefix)acr"
+$AKSName = $Prefix
+$AKS_Workers_VNet_Name = "$($Prefix)-vnet"
+$AKS_Workers_Subnet_Name = "$($Prefix)-workers-subnet"
 
 az network vnet create `
     --resource-group $RGName `
-    --name $AKSVNetName `
-    --address-prefixes 10.0.0.0/8 `
-    --subnet-name $AKSSubnetName `
-    --subnet-prefix 10.240.0.0/16
+    --name $AKS_Workers_VNet_Name `
+    --address-prefixes 10.1.0.0/16 `
+    --subnet-name $AKS_Workers_Subnet_Name `
+    --subnet-prefix 10.1.1.0/24
 
 
-$VNET_ID = az network vnet show `
+$AKS_Workers_VNet_Id = az network vnet show `
     --resource-group $RGName `
-    --name $AKSVNetName `
+    --name $AKS_Workers_VNet_Name `
     --query id `
     --output tsv
 
-$SUBNET_ID=az network vnet subnet show `
+$AKS_Workers_Subnet_Id = az network vnet subnet show `
     --resource-group $RGName `
-    --vnet-name $AKSVNetName `
-    --name $AKSSubnetName `
+    --vnet-name $AKS_Workers_VNet_Name `
+    --name $AKS_Workers_Subnet_Name `
     --query id `
     --output tsv
 
-$ACR_REGISTRY_ID=az acr show --name $ACRName --query id --output tsv
+# Create ACR
+az acr create --name $ACRName --resource-group $RGName
+#$ACR_REGISTRY_ID = az acr show --name $ACRName --query id --output tsv
 
-
-
-$SP_PASSWD = az ad sp create-for-rbac `
-    --name $SPName `
-    --role Contributor `
-    --scopes $ACR_REGISTRY_ID `
-    --query password `
-    --output tsv
-
-$SP_ID= az ad sp show `
-    --id http://$SPName `
-    --query appId `
-    --output tsv`
-
-
+#Create AKS
 az aks create --name $AKSName `
     --resource-group $RGName `
     --generate-ssh-key `
     --node-count 1 `
-    --node-vm-size Standard_D2s_v3 `
-    --service-principal $SP_ID `
-    --client-secret $SP_PASSWD `
-    --dns-service-ip 10.0.0.10 `
+    --node-vm-size Standard_D2s_v3 `    
+    --dns-service-ip 10.1.1.10 `
     --docker-bridge-address 172.17.0.1/16 `
     --network-plugin azure `
     --network-policy azure `
-    --service-cidr 10.0.0.0/16 `
+    --service-cidr 10.1.1.0/24 `
     --vnet-subnet-id $SUBNET_ID `
+    --enable-managed-identity `
     --output table
 
+# Get AKS Credentials
 az aks get-credentials `
              --name $AKSName `
              --resource-group $RGName `
+             --overwrite-existing
              --output table
 
 # Get the id of the service principal configured for AKS
-az aks show --resource-group $RGName --name $AKSName  --query "servicePrincipalProfile.clientId" --output tsv
+#az aks show --resource-group $RGName --name $AKSName  --query "servicePrincipalProfile.clientId" --output tsv
 
 #az aks stop --resource-group $RGName --name $AKSName
