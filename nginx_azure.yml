@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx-deployment
+spec:
+  replicas: 1
+  selector:
+      matchLabels:
+        app: nginx-deployment
+  template:
+    metadata:
+      labels:
+        app: nginx-deployment
+    spec:
+      containers:
+      - name: nginx-deployment
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: azurefileshare
+          mountPath: /usr/share/nginx/html
+      volumes:
+      - name: azurefileshare
+        azureFile:
+          secretName: azure-secret
+          shareName: aks-share
+          readOnly: false
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: nginx-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: nginx-deployment
+  ports:
+  - port: 8080
+    targetPort: 80
+    protocol: TCP
+    

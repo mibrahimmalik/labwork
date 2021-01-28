@@ -56,7 +56,7 @@ az aks create --name $AKSName `
 az aks get-credentials `
              --name $AKSName `
              --resource-group $RGName `
-             --overwrite-existing
+             --overwrite-existing `
              --output table
 
 # Get the id of the service principal configured for AKS
@@ -66,18 +66,18 @@ az aks get-credentials `
 
 
 # Create Azure Storage Account for Persistant Volume
-az storage account create -n "$($aksprefix)vol1" -g $RGName -l $Location --sku Standard_LRS
+az storage account create -n "$($Prefix)vol1" -g $RGName -l $Location --sku Standard_LRS
 
-$AZURE_STORAGE_CONNECTION_STRING = az storage account show-connection-string -n "$($aksprefix)vol1"  -g $RGName -o tsv
+$AZURE_STORAGE_CONNECTION_STRING = az storage account show-connection-string -n "$($prefix)vol1"  -g $RGName -o tsv
 
 
 # Create file share in storage account
 az storage share create -n "aks-share" --connection-string $AZURE_STORAGE_CONNECTION_STRING
 
 
-$STORAGE_KEY= az storage account keys list --resource-group $RGName --account-name "$($aksprefix)vol1" --query "[0].value" -o tsv
+$STORAGE_KEY= az storage account keys list --resource-group $RGName --account-name "$($prefix)vol1" --query "[0].value" -o tsv
 
-kubectl create secret generic azure-secret --from-literal=azurestorageaccountname="$($aksprefix)vol1" --from-literal=azurestorageaccountkey=$STORAGE_KEY
+kubectl create secret generic azure-secret --from-literal=azurestorageaccountname="$($prefix)vol1" --from-literal=azurestorageaccountkey=$STORAGE_KEY
 
 
 # Create Container registry secret
