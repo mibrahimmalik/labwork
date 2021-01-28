@@ -50,6 +50,7 @@ az aks create --name $AKSName `
     --service-cidr 10.1.2.0/24 `
     --vnet-subnet-id $AKS_Workers_Subnet_Id `
     --enable-managed-identity `
+    --enable-addons http_application_routing `
     --output table
 
 # Get AKS Credentials
