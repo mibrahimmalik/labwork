@@ -25,7 +25,8 @@ New-AzVM -Name testvm `
             -PublicIpAddressName $pip.Name `
             -Image 'MicrosoftWindowsServer:WindowsServer:2019-Datacenter-with-Containers:latest' `
             -Size 'Standard_DS3_v2' `
-            -credential $creds
+            -credential $creds `
+            -Verbose
 
 
 #Set-Item WSMan:\localhost\Client\TrustedHosts -Value "*" -Force
