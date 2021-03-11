@@ -28,7 +28,7 @@ New-AzVM -Name testvm `
             -credential $creds
 
 
-Set-Item WSMan:\localhost\Client\TrustedHosts -Value "*" -Force
+#Set-Item WSMan:\localhost\Client\TrustedHosts -Value "*" -Force
 #Test-NetConnection -ComputerName 51.140.178.81 -Port 5985 -Verbose
 
 #Invoke-Command -ComputerName 51.140.178.81 {hostname} -Credential $creds
