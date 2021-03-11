@@ -28,6 +28,8 @@ New-AzVM -Name testvm `
             -credential $creds `
             -Verbose
 
+Get-AzPublicIpAddress `
+            -ResourceGroupName $RG.ResourceGroupName  | Select IpAddress
 
 #Set-Item WSMan:\localhost\Client\TrustedHosts -Value "*" -Force
 #Test-NetConnection -ComputerName 51.140.178.81 -Port 5985 -Verbose
