@@ -31,9 +31,13 @@ New-AzVM -Name testvm `
 Get-AzPublicIpAddress `
             -ResourceGroupName $RG.ResourceGroupName  | Select IpAddress
 
+
+Invoke-AzVMRunCommand -ResourceGroupName $RG.ResourceGroupName `
+        -Name $vmname `
+        -CommandId 'RunPowerShellScript' `
+        -ScriptPath '.\Invoke-commond_using_az_run.ps1'
+
 #Set-Item WSMan:\localhost\Client\TrustedHosts -Value "*" -Force
 
 #Invoke-Command -ComputerName 51.140.81.50 {hostname} -Credential $creds
-
-
 #Test-NetConnection -ComputerName 51.140.178.81 -Port 5985 -Verbose
