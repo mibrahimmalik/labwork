@@ -1,6 +1,6 @@
 Set-AzContext -Subscription 'z_devtest'
 
-$vmname = 'testvm'
+$vmname = 'TestVM'
 $userName = 'azureuser'
 $userPassword = 'Password12345'
 
@@ -14,7 +14,7 @@ $subnet = Get-AzVirtualNetworkSubnetConfig -Name 'testing1_subnet1' -VirtualNetw
 $pip = New-AzPublicIpAddress -Name "$($vmname)-pip" -ResourceGroupName $RG.ResourceGroupName `
         -Location $RG.Location -AllocationMethod Dynamic
 
-New-AzVM -Name testvm `
+New-AzVM -Name $vmname `
             -ResourceGroupName $RG.ResourceGroupName `
             -Location $rg.Location `
             -VirtualNetworkName $vNet.Name `
@@ -31,7 +31,8 @@ Get-AzPublicIpAddress `
 Invoke-AzVMRunCommand -ResourceGroupName $RG.ResourceGroupName `
         -Name $vmname `
         -CommandId 'RunPowerShellScript' `
-        -ScriptPath '.\Invoke-commond_using_az_run.ps1'
+        -ScriptPath '.\Invoke-commond_using_az_run.ps1' `
+        -Verbose
 
 #Set-Item WSMan:\localhost\Client\TrustedHosts -Value "*" -Force
 #Invoke-Command -ComputerName 51.140.81.50 {hostname} -Credential $creds
