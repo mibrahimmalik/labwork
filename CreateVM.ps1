@@ -21,8 +21,10 @@ $VMRG = New-AzResourceGroup -Name $VMRGName -Location uksouth -Force
 
 $vNetRG = New-AzResourceGroup -Name $vNetRGName -Location uksouth -force 
 
-$vNet = Get-AzVirtualNetwork -Name $vNetName -ResourceGroupName $vNetRGName
-$subnet = Get-AzVirtualNetworkSubnetConfig -Name $SubnetName -VirtualNetwork $vNet
+
+$SubnetConfig = New-AzVirtualNetworkSubnetConfig -Name $SubnetName -AddressPrefix $SubnetAddressPrefix
+$vNet = New-AzVirtualNetwork -Name $vNetName -ResourceGroupName $vNetRGName -Location $location -AddressPrefix $vNetAddressPrefix -Subnet $SubnetConfig
+
 
 $nsgName = "$($VMName)-nsg"
 
@@ -38,7 +40,7 @@ $nsg = New-AzNetworkSecurityGroup `
 
 $pipName = "$($VMName)-pip"
 $pip = New-AzPublicIpAddress `
-   -Name $ipName -ResourceGroupName $VMRGName `
+   -Name $pipName -ResourceGroupName $VMRGName `
    -Location $location `
    -AllocationMethod Dynamic
 
@@ -58,12 +60,13 @@ $osDisk = New-AzDisk -DiskName $osDiskName -Disk `
 	-SourceResourceId $snapshot.Id) `
     -ResourceGroupName $VMRGName
 
-$vmConfig = New-AzVMConfig -VMName $VMName -VMSize "Standard_DS4_v3"
+$vmConfig = New-AzVMConfig -VMName $VMName -VMSize "Standard_DS4_v2"
 
 $vm = Add-AzVMNetworkInterface -VM $vmConfig -Id $nic.Id
 
-$vm = Set-AzVMOSDisk -VM $vm -ManagedDiskId $osDisk.Id -StorageAccountType Standard_LRS `
-    -DiskSizeInGB 128 -CreateO
+$vm = Set-AzVMOSDisk -VM $vm -ManagedDiskId $osDisk.Id -CreateOption Attach -Linux
+
+New-AzVM -ResourceGroupName $VMRGName -Location $location -VM $vm 
 
 <#
 New-AzVM -Name $VMName `
@@ -80,7 +83,7 @@ New-AzVM -Name $VMName `
 #>
 
 Get-AzPublicIpAddress `
-            -ResourceGroupName $RG.ResourceGroupName  | Select IpAddress
+            -ResourceGroupName $VMRG.ResourceGroupName  | Select IpAddress
 
 
 
