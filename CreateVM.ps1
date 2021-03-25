@@ -27,7 +27,7 @@ $vNet = New-AzVirtualNetwork -Name $vNetName -ResourceGroupName $vNetRGName -Loc
 
 $nsgName = "$($VMName)-nsg"
 
-$rdpRule = New-AzNetworkSecurityRuleConfig -Name myRdpRule -Description "Allow ssh" `
+$rdpRule = New-AzNetworkSecurityRuleConfig -Name Allow_ssh -Description "Allow ssh" `
     -Access Allow -Protocol Tcp -Direction Inbound -Priority 110 `
     -SourceAddressPrefix Internet -SourcePortRange * `
     -DestinationAddressPrefix * -DestinationPortRange 22
@@ -59,13 +59,17 @@ $osDisk = New-AzDisk -DiskName $osDiskName -Disk `
 	-SourceResourceId $snapshot.Id) `
     -ResourceGroupName $VMRGName
 
-$vmConfig = New-AzVMConfig -VMName $VMName -VMSize "Standard_DS4_v2"
+$avSet = New-AzAvailabilitySet -ResourceGroupName $VMRGName -Name "$($VMName)-avset" -Location $VMRG.Location -PlatformUpdateDomainCount 2 -PlatformFaultDomainCount 2 -Sku Aligned
+
+$vmConfig = New-AzVMConfig -VMName $VMName -VMSize "Standard_D4s_v3" -AvailabilitySetId $avSet.id
 
 $vm = Add-AzVMNetworkInterface -VM $vmConfig -Id $nic.Id
 
 $vm = Set-AzVMOSDisk -VM $vm -ManagedDiskId $osDisk.Id -CreateOption Attach -Linux
 
-New-AzVM -ResourceGroupName $VMRGName -Location $location -VM $vm 
+#$vm = Set-AzureAvailabilitySet -AvailabilitySetName $avSet.Name
+
+New-AzVM -ResourceGroupName $VMRGName -Location $location -VM $vm
 
 <#
 New-AzVM -Name $VMName `
@@ -84,21 +88,14 @@ New-AzVM -Name $VMName `
 Get-AzPublicIpAddress `
             -ResourceGroupName $VMRG.ResourceGroupName  | Select IpAddress
 
-<<<<<<< HEAD
-Invoke-AzVMRunCommand -ResourceGroupName $RG.ResourceGroupName `
-        -Name $vmname `
-        -CommandId 'RunPowerShellScript' `
-        -ScriptPath '.\Invoke-commond_using_az_run.ps1' `
-        -Verbose
-
-#Set-Item WSMan:\localhost\Client\TrustedHosts -Value "*" -Force
-#Invoke-Command -ComputerName 51.140.81.50 {hostname} -Credential $creds
-=======
 
 
 #Set-Item WSMan:\localhost\Client\TrustedHosts -Value "*" -Force
 
 #Invoke-Command -ComputerName 51.145.97.114 {hostname} -Credential $creds
 
->>>>>>> 6f5c29268d23e231ea9e41088ca0c0879b369724
 #Test-NetConnection -ComputerName 51.140.178.81 -Port 5985 -Verbose
+
+
+#Remove-AzResourceGroup -Name $VMRGName -Force
+#Remove-AzResourceGroup -Name $vNetRGName -Force
