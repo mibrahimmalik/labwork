@@ -7,7 +7,7 @@ $creds = New-Object System.Management.Automation.PSCredential ($userName, $secSt
 
 #cmd.exe /c winrm set winrm/config/Client @{AllowUnencrypted="true"}
 
-Set-Item WSMan:\localhost\Client\AllowUnencrypted -Value "true" -Force
+#Set-Item WSMan:\localhost\Client\AllowUnencrypted -Value "true" -Force
 Set-Item WSMan:\localhost\Client\TrustedHosts -Value "*" -Force
 
 # invoke script on VM using credentials

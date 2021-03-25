@@ -33,7 +33,7 @@ Get-AzPublicIpAddress `
 
 #Set-Item WSMan:\localhost\Client\TrustedHosts -Value "*" -Force
 
-#Invoke-Command -ComputerName 51.140.81.50 {hostname} -Credential $creds
+#Invoke-Command -ComputerName 51.145.97.114 {hostname} -Credential $creds
 
 
 #Test-NetConnection -ComputerName 51.140.178.81 -Port 5985 -Verbose
